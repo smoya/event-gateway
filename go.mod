@@ -3,6 +3,7 @@ module github.com/asyncapi/event-gateway
 go 1.16
 
 require (
+	github.com/asyncapi/parser-go v0.3.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21
 	github.com/frankban/quicktest v1.11.3 // indirect
 	github.com/grepplabs/kafka-proxy v0.2.8
