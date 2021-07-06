@@ -5,10 +5,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/asyncapi/event-gateway/kafka"
+	"github.com/asyncapi/event-gateway/kafka/protocol"
 	server "github.com/grepplabs/kafka-proxy/cmd/kafka-proxy"
 	"github.com/grepplabs/kafka-proxy/proxy"
-	"github.com/grepplabs/kafka-proxy/proxy/protocol"
+	kafkaprotocol "github.com/grepplabs/kafka-proxy/proxy/protocol"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -32,8 +32,8 @@ func (b *pipeSeparatedValues) Set(value string) error { //nolint:unparam
 
 type requestKeyHandler struct{}
 
-func (r *requestKeyHandler) Handle(requestKeyVersion *protocol.RequestKeyVersion, src io.Reader, ctx *proxy.RequestsLoopContext, bufferRead *bytes.Buffer) (shouldReply bool, err error) {
-	if requestKeyVersion.ApiKey != kafka.RequestAPIKeyProduce {
+func (r *requestKeyHandler) Handle(requestKeyVersion *kafkaprotocol.RequestKeyVersion, src io.Reader, ctx *proxy.RequestsLoopContext, bufferRead *bytes.Buffer) (shouldReply bool, err error) {
+	if requestKeyVersion.ApiKey != protocol.RequestAPIKeyProduce {
 		return true, nil
 	}
 
@@ -47,8 +47,8 @@ func (r *requestKeyHandler) Handle(requestKeyVersion *protocol.RequestKeyVersion
 		return
 	}
 
-	var req kafka.ProduceRequest
-	if err = kafka.VersionedDecode(msg, &req, requestKeyVersion.ApiVersion); err != nil {
+	var req protocol.ProduceRequest
+	if err = protocol.VersionedDecode(msg, &req, requestKeyVersion.ApiVersion); err != nil {
 		logrus.Errorln(errors.Wrap(err, "error decoding ProduceRequest"))
 
 		// Do not return an error but log it.
@@ -97,7 +97,7 @@ func main() {
 	}
 
 	// Yeah, not a good practice at all but I guess it's fine for now.
-	proxy.ActualDefaultRequestHandler.RequestKeyHandlers.Set(kafka.RequestAPIKeyProduce, &requestKeyHandler{})
+	proxy.ActualDefaultRequestHandler.RequestKeyHandlers.Set(protocol.RequestAPIKeyProduce, &requestKeyHandler{})
 
 	for _, v := range c.KafkaProxyExtraFlags.values {
 		f := strings.Split(v, "=")
