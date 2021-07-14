@@ -13,6 +13,7 @@ type Document interface {
 	ClientSubscribableMessages() []Message
 	//ClientSubscribeOperations() []Operation
 	Messages() []Message
+    Server(name string) (Server, bool)
 	Servers() []Server
 	HasServers() bool
 }
