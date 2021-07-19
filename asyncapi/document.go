@@ -6,20 +6,26 @@ type Document interface {
 	Extendable
 	Channels() []Channel
 	HasChannels() bool
+	ApplicationPublishableChannels() []Channel
+	ApplicationPublishableMessages() []Message
+	ApplicationPublishOperations() []Operation
+	ApplicationSubscribableChannels() []Channel
+	ApplicationSubscribableMessages() []Message
+	ApplicationSubscribeOperations() []Operation
 	ClientPublishableChannels() []Channel
 	ClientPublishableMessages() []Message
-	//ClientPublishOperations() []Operation
+	ClientPublishOperations() []Operation
 	ClientSubscribableChannels() []Channel
 	ClientSubscribableMessages() []Message
-	//ClientSubscribeOperations() []Operation
+	ClientSubscribeOperations() []Operation
 	Messages() []Message
-    Server(name string) (Server, bool)
+	Server(name string) (Server, bool)
 	Servers() []Server
 	HasServers() bool
 }
 
 // Channel is an addressable component, made available by the server, for the organization of messages.
-// Producer applications send messages to channels and consumer applications consume messages from channels
+// Producer applications send messages to channels and consumer applications consume messages from channels.
 type Channel interface {
 	Extendable
 	Identifiable
@@ -41,11 +47,14 @@ type ChannelParameter interface {
 	Schema() Schema
 }
 
+// OperationType is the type of an operation.
+type OperationType string
+
 // Operation describes a publish or a subscribe operation.
 // This provides a place to document how and why messages are sent and received.
 type Operation interface {
 	Extendable
-	Identifiable
+	ID() string
 	Description() string
 	HasDescription() bool
 	IsApplicationPublishing() bool
@@ -53,12 +62,14 @@ type Operation interface {
 	IsClientPublishing() bool
 	IsClientSubscribing() bool
 	Messages() []Message
+	Summary() string
+	HasSummary() bool
+	Type() OperationType
 }
 
 // Message describes a message received on a given channel and operation.
 type Message interface {
 	Extendable
-	Identifiable
 	UID() string
 	Name() string
 	Title() string
@@ -66,6 +77,7 @@ type Message interface {
 	Description() string
 	HasDescription() bool
 	Summary() string
+	HasSummary() bool
 	ContentType() string
 	Payload() Schema
 }
@@ -75,11 +87,11 @@ type Message interface {
 // This object is a superset of the JSON Schema Specification Draft 07.
 type Schema interface {
 	Extendable
-	// $id() string
+	ID() string
 	AdditionalItems() Schema
-	AdditionalProperties() Schema // (boolean | Schema)
-	AllOf() Schema
-	AnyOf() Schema
+	AdditionalProperties() Schema // TODO (boolean | Schema)
+	AllOf() []Schema
+	AnyOf() []Schema
 	CircularProps() []string
 	Const() interface{}
 	Contains() Schema
@@ -87,42 +99,43 @@ type Schema interface {
 	ContentMediaType() string
 	Default() interface{}
 	Definitions() map[string]Schema
-	Dependencies() map[string]Schema // Map[string, Schema|string[]]
+	Dependencies() map[string]Schema // TODO Map[string, Schema|string[]]
 	Deprecated() bool
+	Description() string
+	HasDescription() bool
 	Discriminator() string
 	Else() Schema
 	Enum() []interface{}
 	Examples() []interface{}
-	ExclusiveMaximum() float64
-	ExclusiveMinimum() float64
+	ExclusiveMaximum() *float64
+	ExclusiveMinimum() *float64
 	Format() string
 	HasCircularProps() bool
 	If() Schema
 	IsCircular() bool
-	Items() []Schema // Schema | Schema[]
-	Maximum() float64
-	MaxItems() float64
-	MaxLength() float64
-	MaxProperties() float64
-	Minimum() float64
-	MinItems() float64
-	MinLength() float64
-	MinProperties() float64
-	MultipleOf() float64
+	Items() []Schema // TODO Schema | Schema[]
+	Maximum() *float64
+	MaxItems() *float64
+	MaxLength() *float64
+	MaxProperties() *float64
+	Minimum() *float64
+	MinItems() *float64
+	MinLength() *float64
+	MinProperties() *float64
+	MultipleOf() *float64
 	Not() Schema
 	OneOf() Schema
 	Pattern() string
 	PatternProperties() map[string]Schema
 	Properties() map[string]Schema
 	Property(name string) Schema
-	Name() string
 	PropertyNames() Schema
 	ReadOnly() bool
-	Required() string
+	Required() string // TODO string[]
 	Then() Schema
 	Title() string
-	Type() []string // string | string[]
-	Uid() string
+	Type() []string // TODO // string | string[]
+	UID() string
 	UniqueItems() bool
 	WriteOnly() bool
 }
